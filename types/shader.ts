@@ -15,3 +15,5 @@ export interface ShaderConfig {
 export interface ShaderState {
   active: boolean;
 }
+
+export type Uniform = [string, number, []];

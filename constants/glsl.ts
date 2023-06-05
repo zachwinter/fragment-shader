@@ -54,7 +54,7 @@ vec2 k_swap(vec2 uv, vec2 uv2, bool val, bool valTween, float valTweenProgress) 
 }
 `;
 
-const UTILS = {
+export const RAW_UTILS = {
   hue,
   kale,
   orb,
@@ -63,7 +63,148 @@ const UTILS = {
   swap,
 } as any;
 
-export default Object.keys(UTILS).reduce((acc: string, key: string) => {
-  acc += `${UTILS[key]}`;
-  return acc;
-}, '\n') as any;
+export const GLSL_UTILS = Object.keys(RAW_UTILS).reduce(
+  (acc: string, key: string) => {
+    acc += `${RAW_UTILS[key]}`;
+    return acc;
+  },
+  '\n'
+) as any;
+
+const toKeyObject = (arr: any) =>
+  arr.reduce((acc: any, key: any) => ({ ...acc, [key]: true }), {});
+
+export const BLOCKS = toKeyObject([
+  'if',
+  'for',
+  'else',
+  'switch',
+  'while',
+]) as any;
+
+export const MATH = toKeyObject([
+  'sin',
+  'cos',
+  'tan',
+  'atan',
+  'abs',
+  'log',
+  'dot',
+  'exp',
+]) as any;
+
+export const KEYWORDS = toKeyObject([
+  'main',
+  'stream',
+  'resolution',
+  'time',
+  'volume',
+  'gl_FragCoord',
+  'gl_FragColor',
+  ...Object.keys(GLSL_UTILS),
+]) as any;
+
+export const TYPES = toKeyObject([
+  'attribute',
+  'bvec2',
+  'bvec3',
+  'bvec4',
+  'centroid',
+  'discard',
+  'dmat2',
+  'dmat2x2',
+  'dmat2x3',
+  'dmat2x4',
+  'dmat3',
+  'dmat3x2',
+  'dmat3x3',
+  'dmat3x4',
+  'dmat4',
+  'dmat4x2',
+  'dmat4x3',
+  'dmat4x4',
+  'dvec2',
+  'dvec3',
+  'dvec4',
+  'flat',
+  'float',
+  'highp',
+  'in',
+  'inout',
+  'int',
+  'invariant',
+  'isampler1D',
+  'isampler1DArray',
+  'isampler2D',
+  'isampler2DArray',
+  'isampler2DMS',
+  'isampler2DMSArray',
+  'isampler2DRect',
+  'isampler3D',
+  'isamplerBuffer',
+  'isamplerCube',
+  'isamplerCubeArray',
+  'ivec2',
+  'ivec3',
+  'ivec4',
+  'layout',
+  'lowp',
+  'mat2',
+  'mat2x2',
+  'mat2x3',
+  'mat2x4',
+  'mat3',
+  'mat3x2',
+  'mat3x3',
+  'mat3x4',
+  'mat4',
+  'mat4x2',
+  'mat4x3',
+  'mat4x4',
+  'mediump',
+  'noperspective',
+  'out',
+  'patch',
+  'precision',
+  'sample',
+  'sampler1D',
+  'sampler1DArray',
+  'sampler1DArrayShadow',
+  'sampler1DShadow',
+  'sampler2D',
+  'sampler2DArray',
+  'sampler2DArrayShadow',
+  'sampler2DMS',
+  'sampler2DMSArray',
+  'sampler2DRect',
+  'sampler2DRectShadow',
+  'sampler2DShadow',
+  'sampler3D',
+  'samplerBuffer',
+  'samplerCube',
+  'samplerCubeArray',
+  'samplerCubeArrayShadow',
+  'samplerCubeShadow',
+  'smooth',
+  'subroutine',
+  'uniform',
+  'usampler1D',
+  'usampler1DArray',
+  'usampler2D',
+  'usampler2DArray',
+  'usampler2DMS',
+  'usampler2DMSArray',
+  'usampler2DRect',
+  'usampler3D',
+  'usamplerBuffer',
+  'usamplerCube',
+  'usamplerCubeArray',
+  'uvec2',
+  'uvec3',
+  'uvec4',
+  'varying',
+  'vec2',
+  'vec3',
+  'vec4',
+  'void',
+]) as any;

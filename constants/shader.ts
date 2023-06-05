@@ -45,6 +45,8 @@ export const DEFAULT_DEFS = [
   'precision lowp float;',
   '#define PI 3.14159265359',
   '#define TWO_PI 2. * PI',
+  '#define iTime time',
+  '#define iResolution resolution',
 ].join('\n') as any;
 
 export const DEFAULT_UNIFORM_DECLARATIONS = `
