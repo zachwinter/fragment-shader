@@ -5,16 +5,9 @@
 ```javascript
 import { Shader } from 'fragment-shader';
 
-const shader = new Shader(/* glsl */ `
+new Shader(`
   void main () {
     gl_FragColor = vec4(.8, .2, .7, 1.);
   }
 `);
-
-const tick = now => {
-  requestAnimationFrame(tick);
-  shader.tick(now);
-};
-
-requestAnimationFrame(tick);
 ```
