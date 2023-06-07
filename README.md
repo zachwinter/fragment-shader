@@ -203,6 +203,12 @@ const editor = new Editor(config);
 An `Editor` shares several `Shader` methods:
 
 ```javascript
+// Cancel the `requestAnimationFrame` loop.
+editor.stop();
+
+// Resume the `requestAnimationFrame` loop.
+editor.start();
+
 // Update a uniform value.
 editor.setUniform('warp', false);
 
