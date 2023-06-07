@@ -19,6 +19,10 @@
   --editor-line-height: 1.5rem;
 }
 
+.no-line-numbers .cm-gutters {
+  display: none !important;
+}
+
 .codemirror.visible {
   pointer-events: all;
   opacity: 1;
@@ -123,7 +127,8 @@
 }
 
 .cm-selectionLayer {
-  z-index: 0 !important;
+  z-index: -1 !important;
+  pointer-events: none;
 }
 
 .cm-selectionBackground {

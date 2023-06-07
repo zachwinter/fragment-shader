@@ -115,6 +115,7 @@ export const KEYWORDS = toKeyObject([
 
 export const TYPES = toKeyObject([
   'attribute',
+  'bool',
   'bvec2',
   'bvec3',
   'bvec4',

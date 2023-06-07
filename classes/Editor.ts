@@ -1,4 +1,4 @@
-import Shader, { type UniformValue } from './Shader';
+import Shader from './Shader';
 import { EditorView, basicSetup } from 'codemirror';
 import { EditorViewConfig, ViewUpdate, keymap } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
@@ -10,21 +10,9 @@ import { formatShadertoySource } from '../util/shadertoy';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { BLOCKS, KEYWORDS, MATH, TYPES, RAW_UTILS } from '../constants/glsl';
 import { DEFAULT_FRAGMENT_SHADER, DEFAULT_UNIFORMS } from '../constants/shader';
+import { type UniformValue } from '../types/shader';
+import { type EditorConfig } from '../types/editor';
 import '../css/editor.css';
-
-export interface EditorConfig {
-  target?: HTMLElement;
-  shader?: string;
-  uniforms?: UniformValue[];
-  debug?: boolean;
-  onError?: Function;
-  onSuccess?: Function;
-  onUpdate?: Function;
-  width?: number;
-  height?: number;
-  dpr?: number;
-  fillViewport?: boolean;
-}
 
 const buildAtoms = (uniforms: UniformValue[]) => ({
   ...uniforms.reduce((acc: any, uniform: any) => {
@@ -37,7 +25,7 @@ const buildAtoms = (uniforms: UniformValue[]) => ({
   }, {}),
 });
 
-const defineLanguageDetails = (uniforms: any) =>
+const defineLanguageDetails = (uniforms: UniformValue[]) =>
   clike({
     name: 'FragmentShader',
     types: TYPES,
@@ -51,7 +39,7 @@ const DEFAULT_CONFIG = {
   target: document.body,
   shader: DEFAULT_FRAGMENT_SHADER,
   uniforms: DEFAULT_UNIFORMS,
-  debug: true,
+  showErrors: true,
   onError: () => {},
   onSuccess: () => {},
   onUpdate: () => {},
@@ -59,6 +47,7 @@ const DEFAULT_CONFIG = {
   height: window.innerHeight,
   dpr: window.devicePixelRatio,
   fillViewport: true,
+  showLineNumbers: true,
 };
 
 const errorStylesheet = createStyleSheet();
@@ -116,11 +105,22 @@ export default class Editor {
   private _onUpdate: Function | undefined;
   private container: HTMLElement;
 
-  constructor(config: EditorConfig = DEFAULT_CONFIG) {
-    this.config = {
-      ...DEFAULT_CONFIG,
-      ...config,
-    };
+  constructor(
+    configOrShader: EditorConfig | string = DEFAULT_CONFIG,
+    config: EditorConfig = DEFAULT_CONFIG
+  ) {
+    if (typeof configOrShader === 'string') {
+      this.config = {
+        ...DEFAULT_CONFIG,
+        ...config,
+        shader: configOrShader,
+      };
+    } else {
+      this.config = {
+        ...DEFAULT_CONFIG,
+        ...configOrShader,
+      };
+    }
 
     if (
       this.config.width !== window.innerWidth ||
@@ -136,6 +136,8 @@ export default class Editor {
 
     this.container = document.createElement('section');
     this.container.classList.add('editor');
+    if (!this.config.showLineNumbers)
+      this.container.classList.add('no-line-numbers');
 
     this.sizeContainer();
 
@@ -145,13 +147,13 @@ export default class Editor {
       target: this.container,
       shader,
       uniforms,
-      debug: this.config.debug,
+      debug: this.config.showErrors,
       onError: this.onError.bind(this),
       onSuccess: this.onSuccess.bind(this),
       width: this.config.width,
       height: this.config.height,
       dpr: this.config.dpr,
-      fillViewport: this.config.fillViewport,
+      fillViewport: false,
     });
 
     this._onUpdate = this.config.onUpdate;
@@ -170,14 +172,20 @@ export default class Editor {
   sizeContainer() {
     const width = this.config.fillViewport
       ? window.innerWidth
-      : this.config.width;
+      : this.config.width || window.innerWidth;
     const height = this.config.fillViewport
       ? window.innerHeight
-      : this.config.height;
+      : this.config.height || window.innerHeight;
     this.container.style.position = 'relative';
     this.container.style.width = width + 'px';
     this.container.style.height = height + 'px';
     this.container.style.overflow = 'hidden';
+    if (!this.shader) return;
+    this.shader.size = {
+      width,
+      height,
+      dpr: window.devicePixelRatio,
+    };
   }
 
   onError({ line, message }: any) {
@@ -191,26 +199,51 @@ export default class Editor {
   }
 
   onPaste({ clipboardData }: ClipboardEvent) {
-    if (clipboardData === null) return;
-
-    const string = clipboardData.getData('text');
+    const string = clipboardData?.getData?.('text') || '';
     const isShaderToy = string.indexOf('mainImage') !== -1;
 
-    if (isShaderToy) {
-      this.config.shader = formatShadertoySource(string);
+    if (clipboardData === null || !isShaderToy) return;
 
-      this.shader.rebuild({
-        shader: this.config.shader,
-        uniforms: this.uniforms,
-      });
+    this.config.shader = formatShadertoySource(string);
 
-      this.createEditorView();
-    }
+    this.shader.rebuild({
+      shader: this.config.shader,
+      uniforms: this.uniforms,
+    });
+
+    this.editorView?.setState(
+      this.createState(this.config.shader, this.uniforms)
+    );
+  }
+
+  rebuild(sketch: { shader: string; uniforms?: UniformValue[] }) {
+    const { shader = '', uniforms = [] } = sketch;
+
+    this.config.shader = shader;
+    this.config.uniforms = uniforms;
+    this.shader.rebuild({
+      shader,
+      uniforms,
+    });
+
+    this.editorView?.setState(this.createState(shader, uniforms));
+  }
+
+  setUniform(key: string, value: any) {
+    this.shader.setUniform(key, value);
+  }
+
+  start() {
+    this.shader.start();
+  }
+
+  stop() {
+    this.shader.stop();
   }
 
   createState(
     shader: string = DEFAULT_FRAGMENT_SHADER,
-    uniforms: UniformValue[any][] = DEFAULT_UNIFORMS
+    uniforms: UniformValue[] = DEFAULT_UNIFORMS
   ): EditorState {
     return EditorState.create({
       doc: shader.trim(),
@@ -244,5 +277,7 @@ export default class Editor {
   destroy() {
     window.removeEventListener('paste', this.onPaste);
     this.editorView?.destroy();
+    this.shader?.destroy();
+    this.container.remove();
   }
 }

@@ -1,5 +1,7 @@
 # **fragment-shader**
 
+This project owns two primary features: a minimalist shader renderer and a live code editor.
+
 > • `/classes/Shader.ts` – A lightweight & highly performant WebGL fragment shader renderer written in TypeScript.
 
 - Appx. `3kb` (gzipped).
@@ -27,7 +29,7 @@ To begin let's look at the core renderer, found in `/classes/Shader.ts`.
 
 ## **Shader.ts**
 
-> **Note** there are several plugins in modern IDEs (VSCode, etc.) that enable GLSL (shader language) syntax highlighting within template literals by prefacing them with `/*glsl*/` – doesn't seem to work on GitHub though.
+> **Note** there are several plugins in modern IDEs (VSCode, etc.) that enable GLSL syntax highlighting within template literals by prefacing them with `/*glsl*/` – doesn't seem to work on GitHub though.
 
 ### **Bare Bones Implementation**
 
@@ -81,7 +83,9 @@ const config: ShaderConfig = {
 const shader = new Shader(config);
 ```
 
-Or, if you become accustomed to the shader being the first argument of the constructor, you can instantiate this way:
+> **Note** If you explicitly set `width` or `height`, the renderer sets `fillViewport` to `false`.
+
+If you become accustomed to the shader being the first argument of the constructor, you can instantiate this way:
 
 ```javascript
 import { Shader, type ShaderConfig } from 'fragment-shader';
@@ -95,7 +99,7 @@ const shader = new Shader(/*glsl*/ `
 `, config);
 ```
 
-> **Note** If you set `animate` to `false`, the shader will render its initial frame, but from thereon out you will be responsible for calling the `tick()` method on the Shader if you wish to update it – for example, within a `requestAnimationFrame` loop.
+> **Note** If you set `animate` to `false`, the shader will render its initial frame, but from thereon out you will be responsible for calling the `tick()` method on the Shader if you wish to update it – for example, within a `requestAnimationFrame` loop:
 
 ```javascript
 import { Shader, type ShaderConfig } from 'fragment-shader';
@@ -119,22 +123,92 @@ const tick = (now: DOMHighResTimeStamp) => {
 requestAnimationFrame(tick);
 ```
 
-Now that we can easily render shaders in the browser, let's experiment with authoring them too!
+### **Uniforms**
+
+We can pass any number of `Uniform` values to our shaders. Uniforms passed to the `Shader` class are automatically injected into our shaders without having to define them explicitly. The renderer expects an array of uniforms, each of type `UniformValue`. The first index (`[0]`) of a `UniformValue` defines its `name`, the second (`[1]`) defines its `type`, and the third (`[2]`) defines its `value`.
+
+> **Note** Please note that uniforms of type `bool` are unique in that their values aren't contained within an array.
+
+```javascript
+import { Shader, type UniformValue } from 'fragment-shader';
+
+const zoom: UniformValue = ['zoom', 0, [2.5]];
+const color: UniformValue = ['color', 3, [0.8, 0.2, 0.6]];
+const warp: UniformValue = ['warp', 1, false];
+
+const shader = new Shader({
+  shader: /*glsl*/ `
+    void main () {
+      gl_FragColor = vec4(color, 1.);
+    }
+  `,
+  uniforms: [zoom, color, warp],
+});
+```
+
+Types are mapped as follows:
+
+```javascript
+const SHADER_TYPE_MAP = {
+  0: 'float',
+  1: 'bool',
+  2: 'vec2',
+  3: 'vec3',
+  4: 'vec4',
+};
+```
+
+### **Updating / Cleanup**
+
+```javascript
+// Update a uniform value.
+shader.setUniform('color', [0.1, 0.6, 0.9]);
+
+// Rebuild with a new shader.
+shader.rebuild({ shader, uniforms });
+
+// Destroy shader instance, elements, and event handlers.
+shader.destroy();
+```
 
 ## **Editor.ts**
 
 Instantiating an `Editor` should feel familiar after working with the `Shader` class:
 
 ```javascript
-import { Editor } from 'fragment-shader';
+import { Editor, type EditorConfig } from 'fragment-shader';
 
-const glsl = /*glsl*/ `
-  void main () {
-    gl_FragColor = vec4(.8, .2, .7, 1.);
-  }
-`;
+const config: EditorConfig = {
+  shader: /*glsl*/ `
+    void main () {
+      gl_FragColor = vec4(.8, .2, .7, 1.);
+    }
+  `,
+  uniforms: []
+  target: document.body,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  dpr: window.devicePixelRatio,
+  fillViewport: true,
+  showLineNumbers: true,
+  showErrors: true,
+  onError: () => {},
+  onSuccess: () => {},
+  onUpdate: () => {},
+};
 
-const editor = new Editor(glsl);
+const editor = new Editor(config);
 ```
 
-( More documentation coming soon! )
+An `Editor` shares several `Shader` methods:
+
+```javascript
+// Update a uniform value.
+editor.setUniform('warp', false);
+
+// Rebuild with a new shader.
+editor.rebuild({ shader, uniforms });
+
+// Destroy instance.
+editor.destroy();
+```

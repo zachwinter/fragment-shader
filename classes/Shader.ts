@@ -5,6 +5,11 @@ import { raf } from '../util/raf';
 import { GLSL_UTILS } from '../constants/glsl';
 import { HasResolution } from '../types/dimensions';
 import {
+  type ShaderConfig,
+  type ShaderState,
+  type UniformValue,
+} from '../types/shader';
+import {
   DEFAULT_FRAGMENT_SHADER,
   DEFAULT_UNIFORMS,
   DEFAULT_UNIFORM_DECLARATIONS,
@@ -14,26 +19,6 @@ import {
   INTERNAL_UNIFORMS,
   DEFAULT_DEFS,
 } from '../constants/shader';
-
-export interface ShaderConfig {
-  target?: HTMLElement;
-  shader?: string;
-  uniforms?: any[];
-  width?: number;
-  height?: number;
-  fillViewport?: boolean;
-  dpr?: number;
-  onSuccess?: Function;
-  onError?: Function;
-  animate?: boolean;
-  debug?: boolean;
-}
-
-export interface ShaderState {
-  active: boolean;
-}
-
-export type UniformValue = [string, number, any[]];
 
 const DEFAULT_CONFIG: ShaderConfig = {
   target: document.body,
@@ -50,7 +35,7 @@ const DEFAULT_CONFIG: ShaderConfig = {
 };
 
 export default class Shader {
-  private config: ShaderConfig;
+  public config: ShaderConfig;
   private canvas: HTMLCanvasElement;
   private raf: any;
   private state: ShaderState;
@@ -61,6 +46,7 @@ export default class Shader {
   private plane: Plane;
   public stream: number;
   public volume: number;
+  private _uniformMap: any;
 
   constructor(
     configOrShader: ShaderConfig | string = DEFAULT_CONFIG,
@@ -118,6 +104,7 @@ export default class Shader {
       0
     );
 
+    this.setUniform = this.setUniform.bind(this);
     this.raf = raf(this.tick.bind(this));
 
     if (this.config.animate) {
@@ -145,11 +132,21 @@ export default class Shader {
   }
 
   get vertexShader(): string {
-    return `${DEFAULT_DEFS}\n${DEFAULT_UNIFORM_DECLARATIONS}\n${this.uniformDeclarations}\n${GLSL_UTILS}\n${DEFAULT_VERTEX_SHADER}`;
+    return `
+      ${DEFAULT_DEFS}
+      ${DEFAULT_UNIFORM_DECLARATIONS}
+      ${this.uniformDeclarations}
+      ${GLSL_UTILS}
+      ${DEFAULT_VERTEX_SHADER}`;
   }
 
   get fragmentShader(): string {
-    return `${DEFAULT_DEFS}\n${DEFAULT_UNIFORM_DECLARATIONS}\n${this.uniformDeclarations}\n${GLSL_UTILS}\n${this.config.shader}`;
+    return `
+      ${DEFAULT_DEFS}
+      ${DEFAULT_UNIFORM_DECLARATIONS}
+      ${this.uniformDeclarations}
+      ${GLSL_UTILS}
+      ${this.config.shader}`;
   }
 
   set uniforms(uniforms: UniformValue[]) {
@@ -169,10 +166,26 @@ export default class Shader {
     this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
+  setUniform(key: string, value: any) {
+    try {
+      const index = this._uniformMap[key];
+      if (this.config.uniforms?.[index][2]) {
+        this.config.uniforms[index][2] = value;
+      }
+    } catch (e) {
+      console.warn(`Error setting uniform ${key}.`);
+    }
+  }
+
   buildUniforms(): UniformValue[] {
     const uniforms = [...INTERNAL_UNIFORMS, ...(this.config.uniforms || [])];
 
-    return uniforms.reduce((acc, uniform: any) => {
+    this._uniformMap = this.config.uniforms?.reduce((acc, [name], i) => {
+      acc[name] = i;
+      return acc;
+    }, {});
+
+    return uniforms.reduce((acc, uniform: any, i) => {
       acc[uniform[0]] = new Uniform(
         this.ctx,
         WEBGL_TYPE_MAP[uniform[1]],
@@ -261,20 +274,7 @@ export default class Shader {
     this.config.uniforms = uniforms;
 
     try {
-      this.ctx?.detachShader(
-        this.program as any,
-        this.shaders?.[this.ctx?.VERTEX_SHADER]
-      );
-
-      this.ctx?.detachShader(
-        this.program as any,
-        this.shaders?.[this.ctx?.FRAGMENT_SHADER]
-      );
-
-      this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
-      this.ctx?.deleteShader(this.shaders?.[this.ctx?.VERTEX_SHADER]);
-      this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
-      this.ctx?.deleteProgram(this.program);
+      this.destroy({ rebuild: true });
       this.program = this.ctx?.createProgram() as any;
       this.compileShader(this.ctx?.VERTEX_SHADER, this.vertexShader);
       this.compileShader(this.ctx?.FRAGMENT_SHADER, this.fragmentShader);
@@ -292,6 +292,10 @@ export default class Shader {
         0,
         0
       );
+
+      if (this.config.animate) {
+        this.start();
+      }
     } catch (e) {
       // console.log(e);
     }
@@ -313,7 +317,30 @@ export default class Shader {
     this.plane?.render();
   }
 
-  destroy() {
+  destroy({ rebuild = false } = {}) {
+    if (this.config.animate) {
+      this.stop();
+    }
+
+    this.ctx?.detachShader(
+      this.program as any,
+      this.shaders?.[this.ctx?.VERTEX_SHADER]
+    );
+
+    this.ctx?.detachShader(
+      this.program as any,
+      this.shaders?.[this.ctx?.FRAGMENT_SHADER]
+    );
+
+    this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
+    this.ctx?.deleteShader(this.shaders?.[this.ctx?.VERTEX_SHADER]);
+    this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
+    this.ctx?.deleteProgram(this.program);
+
+    if (rebuild) return;
+
+    this.canvas.remove();
+
     window.removeEventListener('resize', this.onWindowResize);
   }
 }

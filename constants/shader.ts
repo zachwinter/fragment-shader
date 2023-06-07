@@ -48,11 +48,12 @@ export const WEBGL_TYPE_MAP = {
 } as any;
 
 export const DEFAULT_DEFS = [
-  'precision lowp float;',
+  'precision mediump float;',
   '#define PI 3.14159265359',
   '#define TWO_PI 2. * PI',
   '#define iTime time',
   '#define iResolution resolution',
+  '#define iMouse vec2(0., 0.)',
 ].join('\n') as any;
 
 export const DEFAULT_UNIFORM_DECLARATIONS = `
