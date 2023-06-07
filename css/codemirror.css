@@ -1,0 +1,195 @@
+:root {
+  --pink: #f550b6;
+  --red: #ec3a3a;
+  --blue: #38a0f0;
+  --storm: #889fa7;
+  --white: #ffffff;
+  --black: rgb(10, 5, 8);
+  --yellow: rgb(255, 172, 30);
+  --teal: #73d2deff;
+  --green: #4ce0d2;
+  --purple: #bba2f3;
+  --spotify: #1db954;
+  --gray: #54494b;
+  --background-color: var(--black);
+  --ui-background: rgba(0, 0, 0, 0.8);
+}
+
+.codemirror.visible {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.codemirror.hide {
+  pointer-events: none;
+}
+
+.codemirror::-webkit-scrollbar {
+  display: none;
+}
+
+.codemirror::scrollbar {
+  display: none;
+}
+
+.cm-editor {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: initial !important;
+  right: initial !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  color: white !important;
+  outline: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  z-index: 10 !important;
+  will-change: transform, opacity;
+  contain: strict;
+}
+
+.cm-editor * {
+  font-family: 'Red Hat Mono', monospace;
+  font-weight: 300 !important;
+  tab-size: 24px;
+  font-size: 16px;
+  line-height: 24px;
+  background: transparent !important;
+}
+
+.cm-cursorLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cm-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.cm-scroller::scrollbar {
+  display: none;
+}
+
+.cm-content {
+  padding-top: 0 !important;
+  background: transparent;
+}
+
+.cm-content::-webkit-scrollbar {
+  display: none;
+}
+
+.cm-content::scrollbar {
+  display: none;
+}
+
+.cm-gutters {
+  background: var(--ui-background) !important;
+  border-right: var(--border);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.cm-gutters,
+.cm-gutters * {
+  user-select: none !important;
+}
+
+.cm-lineNumbers {
+  min-width: 2rem;
+}
+
+.cm-foldGutter {
+  display: none;
+}
+
+.cm-activeLineGutter {
+  background: var(--pink);
+  outline: 1px solid var(--purple);
+  color: white;
+}
+
+.cm-line {
+  height: 24px !important;
+  line-height: 24px !important;
+  word-spacing: 0rem;
+  background: var(--ui-background) !important;
+  width: fit-content;
+  color: var(--blue);
+  padding-left: 0.5rem !important;
+}
+
+.cm-activeLine {
+  background: linear-gradient(to right, rgba(0, 0, 0, 1), var(--ui-background));
+  outline: 1px solid var(--purple);
+  z-index: 2;
+  position: relative;
+}
+
+.cm-selectionLayer {
+  z-index: 1000 !important;
+}
+
+.cm-selectionBackground {
+  background: var(--black);
+  z-index: 1000 !important;
+}
+
+.cm-matchingBracket {
+  color: var(--yellow);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  display: inline-block;
+}
+
+.ͼv {
+  color: var(--blue);
+}
+
+.ͼu {
+  color: var(--pink);
+  font-weight: 500 !important;
+}
+
+.ͼq {
+  color: white;
+}
+
+.ͼs {
+  color: var(--blue);
+  font-weight: 500 !important;
+}
+
+.ͼ12 {
+  color: var(--green);
+  font-weight: 500 !important;
+}
+
+.ͼp {
+  font-weight: 700 !important;
+  color: var(--purple);
+}
+
+.cm-selectionMatch * {
+  outline: 1px solid var(--pink) !important;
+  color: var(--purple) !important;
+}
+
+.cm-gutterElement {
+  font-size: 16px;
+  line-height: 24px;
+  height: 24px;
+}
+
+.cm-gutterElement:first-of-type {
+  display: none;
+}
+
+.cm-tooltip-autocomplete {
+  background: var(--black) !important;
+}

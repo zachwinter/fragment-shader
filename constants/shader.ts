@@ -8,7 +8,14 @@ void main() {
 
 export const DEFAULT_FRAGMENT_SHADER = /*glsl*/ `
 void main () {
-  gl_FragColor = vec4(pink, 1.);
+  vec2 uv = -1. + 2. * gl_FragCoord.xy / resolution.xy;
+  uv.x *= resolution.x / resolution.y;
+
+  float r = sin(uv.x + time);
+  float g = cos(uv.y + time);
+  float b = sin(uv.y - time);
+
+  gl_FragColor = vec4(r, g, b, 1.);
 }
 `;
 

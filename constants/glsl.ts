@@ -1,4 +1,4 @@
-export const hue = /*glsl*/ `
+export const k_hue = /*glsl*/ `
 vec4 k_hue(vec4 color, float shift) {
   float I = dot(color, vec4(0.596, -0.275, -0.321, 0.0));
   float Q = dot(color, vec4(0.212, -0.523, 0.311, 0.0));
@@ -15,7 +15,7 @@ vec4 k_hue(vec4 color, float shift) {
 }
 `;
 
-export const kale = /*glsl*/ `
+export const k_kale = /*glsl*/ `
 vec2 k_kale(vec2 uv, vec2 offset, float sides) {
   float angle = atan(uv.y, uv.x);
   angle = ((angle / 3.14159265359) + 1.0) * 0.5;
@@ -28,25 +28,25 @@ vec2 k_kale(vec2 uv, vec2 offset, float sides) {
 }
 `;
 
-export const orb = /*glsl*/ `
+export const k_orb = /*glsl*/ `
 vec4 k_orb(vec2 uv, float size, vec2 position, vec3 color, float contrast) {
   return pow(vec4(size / length(uv + position) * color, 1.), vec4(contrast));
 }
 `;
 
-export const rainbow = /*glsl*/ `
+export const k_rainbow = /*glsl*/ `
 vec3 k_rainbow(float progress, float stretch, float offset) {
   return vec3(cos(vec3(-2, 0, -1) * 3.14159265359 * 2. / 3. + (2. * 3.14159265359) * (progress * stretch) + offset) * 0.5 + 0.5);
 }
 `;
 
-export const rotate2d = /* glsl */ `
+export const k_rotate2d = /* glsl */ `
 mat2 k_rotate2d(float angle) {
   return mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
 }
 `;
 
-export const swap = /* glsl */ `
+export const k_swap = /* glsl */ `
 vec2 k_swap(vec2 uv, vec2 uv2, bool val, bool valTween, float valTweenProgress) {
   return valTween
     ? (val ? mix(uv, uv2, valTweenProgress) : mix(uv2, uv, valTweenProgress))
@@ -55,12 +55,12 @@ vec2 k_swap(vec2 uv, vec2 uv2, bool val, bool valTween, float valTweenProgress) 
 `;
 
 export const RAW_UTILS = {
-  hue,
-  kale,
-  orb,
-  rainbow,
-  rotate2d,
-  swap,
+  k_hue,
+  k_kale,
+  k_orb,
+  k_rainbow,
+  k_rotate2d,
+  k_swap,
 } as any;
 
 export const GLSL_UTILS = Object.keys(RAW_UTILS).reduce(

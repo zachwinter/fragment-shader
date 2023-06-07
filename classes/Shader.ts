@@ -3,7 +3,6 @@ import Plane from './Plane';
 import { createCanvas, sizeCanvas } from '../util/dom';
 import { raf } from '../util/raf';
 import { GLSL_UTILS } from '../constants/glsl';
-import { ShaderConfig, ShaderState } from '../types/shader';
 import { HasResolution } from '../types/dimensions';
 import {
   DEFAULT_FRAGMENT_SHADER,
@@ -16,6 +15,26 @@ import {
   DEFAULT_DEFS,
 } from '../constants/shader';
 
+export interface ShaderConfig {
+  target?: HTMLElement;
+  shader?: string;
+  uniforms?: any[];
+  width?: number;
+  height?: number;
+  fillViewport?: boolean;
+  dpr?: number;
+  onSuccess?: Function;
+  onError?: Function;
+  animate?: boolean;
+  debug?: boolean;
+}
+
+export interface ShaderState {
+  active: boolean;
+}
+
+export type UniformValue = [string, number, any[]];
+
 const DEFAULT_CONFIG: ShaderConfig = {
   target: document.body,
   shader: DEFAULT_FRAGMENT_SHADER,
@@ -26,6 +45,8 @@ const DEFAULT_CONFIG: ShaderConfig = {
   fillViewport: true,
   animate: true,
   debug: false,
+  onError: () => {},
+  onSuccess: () => {},
 };
 
 export default class Shader {
@@ -63,6 +84,12 @@ export default class Shader {
     };
 
     this.canvas = createCanvas(this.config.target);
+
+    if (this.config.fillViewport) {
+      this.canvas.style.position = 'fixed';
+      this.canvas.style.top = '0';
+      this.canvas.style.left = '0';
+    }
 
     sizeCanvas(this.canvas, this.config as HasResolution);
 
@@ -118,46 +145,31 @@ export default class Shader {
   }
 
   get vertexShader(): string {
-    return `
-      ${DEFAULT_DEFS}
-      ${DEFAULT_UNIFORM_DECLARATIONS}
-      ${this.uniformDeclarations}
-      ${GLSL_UTILS}
-      ${DEFAULT_VERTEX_SHADER}
-    `;
+    return `${DEFAULT_DEFS}\n${DEFAULT_UNIFORM_DECLARATIONS}\n${this.uniformDeclarations}\n${GLSL_UTILS}\n${DEFAULT_VERTEX_SHADER}`;
   }
 
   get fragmentShader(): string {
-    return `
-      ${DEFAULT_DEFS}
-      ${DEFAULT_UNIFORM_DECLARATIONS}
-      ${this.uniformDeclarations}
-      ${GLSL_UTILS}
-      ${this.config.shader}
-    `;
+    return `${DEFAULT_DEFS}\n${DEFAULT_UNIFORM_DECLARATIONS}\n${this.uniformDeclarations}\n${GLSL_UTILS}\n${this.config.shader}`;
   }
 
-  set uniforms(uniforms: Uniform[]) {
+  set uniforms(uniforms: UniformValue[]) {
     this.config.uniforms = uniforms;
   }
 
-  set size({
-    width,
-    height,
-    dpr = window.devicePixelRatio,
-  }: {
-    width: number;
-    height: number;
-    dpr: number;
-  }) {
+  set size(resolution: HasResolution) {
+    const {
+      width = window.innerWidth,
+      height = window.innerHeight,
+      dpr = window.devicePixelRatio,
+    } = resolution;
     this.config.width = width;
     this.config.height = height;
     this.config.dpr = dpr;
-
     sizeCanvas(this.canvas, this.config as HasResolution);
+    this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  buildUniforms(): Uniform[] {
+  buildUniforms(): UniformValue[] {
     const uniforms = [...INTERNAL_UNIFORMS, ...(this.config.uniforms || [])];
 
     return uniforms.reduce((acc, uniform: any) => {
@@ -204,10 +216,17 @@ export default class Shader {
 
         if (success && this.program) {
           this.ctx.attachShader(this.program, this.shaders[type]);
-          this.config?.onSuccess?.();
+          if (type === this.ctx.FRAGMENT_SHADER) this.config?.onSuccess?.();
         } else {
+          const hiddenLines = this.fragmentShader
+            .split(this.config.shader || '')[0]
+            .split('\n').length;
           const error = this.ctx.getShaderInfoLog(this.shaders[type]);
-          this.config?.onError?.(error);
+          const data = error?.split(':').map(v => v.trim()) || [];
+          const line = parseInt(data[2], 10) + 1 - hiddenLines;
+          const message = data[4].split('\n')[0];
+
+          this.config?.onError?.({ line, message });
         }
 
         return;
@@ -224,6 +243,7 @@ export default class Shader {
     this.config.height = window.innerHeight;
     this.config.dpr = window.devicePixelRatio;
     sizeCanvas(this.canvas, this.config as HasResolution);
+    this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
   start(): void {
@@ -254,35 +274,35 @@ export default class Shader {
       this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
       this.ctx?.deleteShader(this.shaders?.[this.ctx?.VERTEX_SHADER]);
       this.ctx?.deleteShader(this.shaders?.[this.ctx?.FRAGMENT_SHADER]);
+      this.ctx?.deleteProgram(this.program);
+      this.program = this.ctx?.createProgram() as any;
+      this.compileShader(this.ctx?.VERTEX_SHADER, this.vertexShader);
+      this.compileShader(this.ctx?.FRAGMENT_SHADER, this.fragmentShader);
+      this.ctx?.linkProgram(this.program as any);
+      this.ctx?.useProgram(this.program);
+      this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
+      this._uniforms = this.buildUniforms();
+      this.plane = new Plane(this.ctx);
+      this.ctx?.enableVertexAttribArray(0);
+      this.ctx?.vertexAttribPointer(
+        this.ctx?.getAttribLocation(this.program as any, 'position'),
+        2,
+        this.ctx?.FLOAT,
+        false,
+        0,
+        0
+      );
     } catch (e) {
-      console.log(e);
+      // console.log(e);
     }
-
-    this.program = this.ctx?.createProgram() as any;
-    this.compileShader(this.ctx?.VERTEX_SHADER, this.vertexShader);
-    this.compileShader(this.ctx?.FRAGMENT_SHADER, this.fragmentShader);
-    this.ctx?.linkProgram(this.program as any);
-    this.ctx?.useProgram(this.program);
-    this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
-    this._uniforms = this.buildUniforms();
-    this.plane = new Plane(this.ctx);
-    this.ctx?.enableVertexAttribArray(0);
-    this.ctx?.vertexAttribPointer(
-      this.ctx?.getAttribLocation(this.program as any, 'position'),
-      2,
-      this.ctx?.FLOAT,
-      false,
-      0,
-      0
-    );
   }
 
   tick(now: DOMHighResTimeStamp): void {
-    const time = now;
+    const time = now / 1000;
 
     this._uniforms?.resolution?.set([this.canvas.width, this.canvas.height]);
-    this._uniforms?.time?.set(time / 1000);
-    this._uniforms?.stream?.set(this.stream ?? time / 1000);
+    this._uniforms?.time?.set(time);
+    this._uniforms?.stream?.set(time);
     this._uniforms?.volume?.set(this.volume);
     this.config?.uniforms?.forEach(uniform => {
       this._uniforms[uniform[0]].set(
