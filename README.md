@@ -19,8 +19,6 @@
 
 ## **Installation** _( NPM )_
 
----
-
 ```bash
 npm install --save fragment-shader
 ```
@@ -28,8 +26,6 @@ npm install --save fragment-shader
 To begin let's look at the core renderer, found in `/classes/Shader.ts`.
 
 ## **Shader.ts**
-
----
 
 > **Note** there are several plugins in modern IDEs (VSCode, etc.) that enable GLSL (shader language) syntax highlighting within template literals by prefacing them with `/*glsl*/` – doesn't seem to work on GitHub though.
 
@@ -58,8 +54,6 @@ shader.start();
 ```
 
 ### **Configured Implementation**
-
----
 
 If you wish for the renderer to behave differently than its default configuration, you can do so by passing the constructor a configuration object. The object's shape (and its default values) look like this:
 
@@ -127,8 +121,6 @@ requestAnimationFrame(tick);
 
 Now that we can easily render shaders in the browser, let's experiment with authoring them too!
 
----
-
 ## **Editor.ts**
 
 Instantiating an `Editor` should feel familiar after working with the `Shader` class:
@@ -145,4 +137,4 @@ const glsl = /*glsl*/ `
 const editor = new Editor(glsl);
 ```
 
-> ( More documentation coming soon! )
+( More documentation coming soon! )
