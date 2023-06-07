@@ -1,6 +1,6 @@
 # **fragment-shader**
 
-This project owns two primary features: a minimalist shader renderer and a live code editor.
+This project owns two primary features: a minimalist shader renderer and a live code editor (**[try it here!](https://fragment-shader.herokuapp.com/)**).
 
 > • `/classes/Shader.ts` – A lightweight & highly performant WebGL fragment shader renderer written in TypeScript.
 
