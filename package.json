@@ -1,6 +1,6 @@
 {
   "name": "fragment-shader",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A lightweight, performant WebGL fragment shader renderer + editor. ",
   "main": "index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.12.0",
     "codemirror": "^6.0.1",
+    "fragment-shader": "^0.1.1",
     "glslx": "^0.3.0"
   },
   "devDependencies": {

@@ -1,5 +1,3 @@
-import '../util/glslx';
-
 function extractShaderInputs(shaderCode: string) {
   const regex =
     /void\s+mainImage\s*\(\s*(?:out\s+)?vec4\s+(\w+)\s*,\s*(?:in\s+)?vec2\s+(\w+)\s*\)/;
@@ -59,5 +57,5 @@ export function formatShadertoySource(shader: string) {
     iResolution: 'resolution',
   });
 
-  return (window as any)?.GLSLX?.format(copy) || copy;
+  return copy;
 }

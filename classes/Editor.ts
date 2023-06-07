@@ -10,7 +10,6 @@ import { formatShadertoySource } from '../util/shadertoy';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { BLOCKS, KEYWORDS, MATH, TYPES, RAW_UTILS } from '../constants/glsl';
 import { DEFAULT_FRAGMENT_SHADER, DEFAULT_UNIFORMS } from '../constants/shader';
-import '../util/glslx';
 import styles from '../css/codemirror.css?inline';
 
 export interface EditorConfig {
