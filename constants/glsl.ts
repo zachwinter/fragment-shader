@@ -54,6 +54,14 @@ vec2 k_swap(vec2 uv, vec2 uv2, bool val, bool valTween, float valTweenProgress) 
 }
 `;
 
+export const k_uv = /* glsl */ `
+vec2 k_uv (vec4 fragCoord) {
+  vec2 uv = -1. + 2. * fragCoord.xy / resolution.xy;
+  uv.x *= resolution.x / resolution.y;
+  return uv;
+}
+`;
+
 export const RAW_UTILS = {
   k_hue,
   k_kale,
@@ -61,6 +69,7 @@ export const RAW_UTILS = {
   k_rainbow,
   k_rotate2d,
   k_swap,
+  k_uv,
 } as any;
 
 export const GLSL_UTILS = Object.keys(RAW_UTILS).reduce(

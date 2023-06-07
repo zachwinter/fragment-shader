@@ -10,7 +10,7 @@ import { formatShadertoySource } from '../util/shadertoy';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { BLOCKS, KEYWORDS, MATH, TYPES, RAW_UTILS } from '../constants/glsl';
 import { DEFAULT_FRAGMENT_SHADER, DEFAULT_UNIFORMS } from '../constants/shader';
-import styles from '../css/codemirror.css?inline';
+import '../css/editor.css';
 
 export interface EditorConfig {
   target?: HTMLElement;
@@ -122,12 +122,17 @@ export default class Editor {
       ...config,
     };
 
+    if (
+      this.config.width !== window.innerWidth ||
+      this.config.height !== window.innerHeight
+    ) {
+      this.config.fillViewport = false;
+    }
+
     const { target, shader, uniforms }: any = this.config;
 
     if (!target || !shader || !uniforms)
       throw new Error('Initialization error.');
-
-    createStyleSheet(styles);
 
     this.container = document.createElement('section');
     this.container.classList.add('editor');

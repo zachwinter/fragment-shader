@@ -8,8 +8,7 @@ void main() {
 
 export const DEFAULT_FRAGMENT_SHADER = /*glsl*/ `
 void main () {
-  vec2 uv = -1. + 2. * gl_FragCoord.xy / resolution.xy;
-  uv.x *= resolution.x / resolution.y;
+  vec2 uv = k_uv(gl_FragCoord);
 
   float r = sin(uv.x + time);
   float g = cos(uv.y + time);
