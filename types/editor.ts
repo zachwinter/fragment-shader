@@ -1,16 +1,8 @@
-import type { UniformValue } from './shader';
+import { StreamParser } from '@codemirror/language';
+import type { ShaderConfig } from './shader';
 
-export interface EditorConfig {
-  target?: HTMLElement;
-  shader?: string;
-  uniforms?: UniformValue[];
-  showErrors?: boolean;
-  onError?: Function;
-  onSuccess?: Function;
+export interface EditorConfig extends ShaderConfig {
   onUpdate?: Function;
-  width?: number;
-  height?: number;
-  dpr?: number;
-  fillViewport?: boolean;
-  showLineNumbers?: boolean;
+  document?: string;
+  streamParser?: StreamParser<any>;
 }

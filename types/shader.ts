@@ -1,5 +1,5 @@
 export interface ShaderConfig {
-  target?: HTMLElement;
+  parent?: HTMLElement;
   shader?: string;
   uniforms?: any[];
   width?: number;

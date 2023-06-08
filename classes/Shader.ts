@@ -20,8 +20,8 @@ import {
   DEFAULT_DEFS,
 } from '../constants/shader';
 
-const DEFAULT_CONFIG: ShaderConfig = {
-  target: document.body,
+export const DEFAULT_SHADER_CONFIG: ShaderConfig = {
+  parent: document.body,
   shader: DEFAULT_FRAGMENT_SHADER,
   uniforms: DEFAULT_UNIFORMS,
   width: window.innerWidth,
@@ -49,18 +49,18 @@ export default class Shader {
   private _uniformMap: any;
 
   constructor(
-    configOrShader: ShaderConfig | string = DEFAULT_CONFIG,
-    config: ShaderConfig = DEFAULT_CONFIG
+    configOrShader: ShaderConfig | string = DEFAULT_SHADER_CONFIG,
+    config: ShaderConfig = DEFAULT_SHADER_CONFIG
   ) {
     if (typeof configOrShader === 'string') {
       this.config = {
-        ...DEFAULT_CONFIG,
+        ...DEFAULT_SHADER_CONFIG,
         ...config,
         shader: configOrShader,
       };
     } else {
       this.config = {
-        ...DEFAULT_CONFIG,
+        ...DEFAULT_SHADER_CONFIG,
         ...configOrShader,
       };
     }
@@ -69,12 +69,13 @@ export default class Shader {
       active: false,
     };
 
-    this.canvas = createCanvas(this.config.target);
+    this.canvas = createCanvas(this.config.parent);
 
     if (this.config.fillViewport) {
-      this.canvas.style.position = 'fixed';
+      this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
+      this.canvas.style.zIndex = '0';
     }
 
     sizeCanvas(this.canvas, this.config as HasResolution);
@@ -104,8 +105,9 @@ export default class Shader {
       0
     );
 
+    this.tick = this.tick.bind(this);
     this.setUniform = this.setUniform.bind(this);
-    this.raf = raf(this.tick.bind(this));
+    this.raf = raf(this.tick);
 
     if (this.config.animate) {
       this.start();
@@ -185,7 +187,7 @@ export default class Shader {
       return acc;
     }, {});
 
-    return uniforms.reduce((acc, uniform: any, i) => {
+    return uniforms.reduce((acc, uniform: any) => {
       acc[uniform[0]] = new Uniform(
         this.ctx,
         WEBGL_TYPE_MAP[uniform[1]],
@@ -295,6 +297,8 @@ export default class Shader {
 
       if (this.config.animate) {
         this.start();
+      } else {
+        requestAnimationFrame(this.tick);
       }
     } catch (e) {
       // console.log(e);

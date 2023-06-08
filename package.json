@@ -1,6 +1,6 @@
 {
   "name": "fragment-shader",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "A lightweight, performant WebGL fragment shader renderer + editor. ",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/zachwinter/fragment-shader#readme",
   "dependencies": {
+    "@codemirror/autocomplete": "^6.7.1",
     "@codemirror/commands": "^6.2.4",
     "@codemirror/language": "^6.7.0",
     "@codemirror/legacy-modes": "^6.3.2",

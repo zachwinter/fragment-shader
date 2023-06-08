@@ -72,6 +72,8 @@ export const RAW_UTILS = {
   k_uv,
 } as any;
 
+export const RAW_UTIL_KEYS = Object.keys(RAW_UTILS);
+
 export const GLSL_UTILS = Object.keys(RAW_UTILS).reduce(
   (acc: string, key: string) => {
     acc += `${RAW_UTILS[key]}`;
@@ -80,18 +82,9 @@ export const GLSL_UTILS = Object.keys(RAW_UTILS).reduce(
   '\n'
 ) as any;
 
-const toKeyObject = (arr: any) =>
-  arr.reduce((acc: any, key: any) => ({ ...acc, [key]: true }), {});
+export const BLOCKS = ['if', 'for', 'else', 'switch', 'while'] as any;
 
-export const BLOCKS = toKeyObject([
-  'if',
-  'for',
-  'else',
-  'switch',
-  'while',
-]) as any;
-
-export const MATH = toKeyObject([
+export const MATH = [
   'sin',
   'cos',
   'tan',
@@ -100,9 +93,9 @@ export const MATH = toKeyObject([
   'log',
   'dot',
   'exp',
-]) as any;
+] as any;
 
-export const KEYWORDS = toKeyObject([
+export const KEYWORDS = [
   'main',
   'stream',
   'resolution',
@@ -110,10 +103,9 @@ export const KEYWORDS = toKeyObject([
   'volume',
   'gl_FragCoord',
   'gl_FragColor',
-  ...Object.keys(GLSL_UTILS),
-]) as any;
+] as any;
 
-export const TYPES = toKeyObject([
+export const TYPES = [
   'attribute',
   'bool',
   'bvec2',
@@ -217,4 +209,4 @@ export const TYPES = toKeyObject([
   'vec3',
   'vec4',
   'void',
-]) as any;
+] as any;
