@@ -32,6 +32,7 @@ export const DEFAULT_SHADER_CONFIG: ShaderConfig = {
   debug: false,
   onError: () => {},
   onSuccess: () => {},
+  onResize: () => {},
 };
 
 export default class Shader {
@@ -64,6 +65,8 @@ export default class Shader {
         ...configOrShader,
       };
     }
+
+    console.log(this.config);
 
     this.state = {
       active: false,
@@ -166,6 +169,7 @@ export default class Shader {
     this.config.dpr = dpr;
     sizeCanvas(this.canvas, this.config as HasResolution);
     this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
+    this.config?.onResize?.();
   }
 
   setUniform(key: string, value: any) {
@@ -259,6 +263,7 @@ export default class Shader {
     this.config.dpr = window.devicePixelRatio;
     sizeCanvas(this.canvas, this.config as HasResolution);
     this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
+    this.config?.onResize?.();
   }
 
   start(): void {

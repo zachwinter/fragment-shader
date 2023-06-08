@@ -8,6 +8,7 @@ export interface ShaderConfig {
   dpr?: number;
   onSuccess?: Function;
   onError?: Function;
+  onResize?: Function;
   animate?: boolean;
   debug?: boolean;
 }

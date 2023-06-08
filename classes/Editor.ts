@@ -24,11 +24,16 @@ export default class Editor {
 
     this.onUpdate = this.onUpdate.bind(this);
     this.onError = this.onError.bind(this);
+    this.onResize = this.onResize.bind(this);
     this.editor = createShaderEditor({
       ...this.config,
       onUpdate: this.onUpdate,
     });
-    this.shader = new Shader({ ...this.config, onError: this.onError });
+    this.shader = new Shader({
+      ...this.config,
+      onError: this.onError,
+      onResize: this.onResize,
+    });
   }
 
   onUpdate(val: string) {
@@ -39,6 +44,12 @@ export default class Editor {
 
   onError({ line, message }: { line: number; message: string }) {
     this.editor.showError({ line, message });
+  }
+
+  onResize() {
+    this.editor.config.width = this.shader.config.width;
+    this.editor.config.height = this.shader.config.height;
+    this.editor.applyCSSVariables();
   }
 
   rebuild(config: { shader?: string; uniforms?: UniformValue[] } = {}) {

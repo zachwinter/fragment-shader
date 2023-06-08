@@ -36,7 +36,7 @@ const DEFAULT_CODE_EDITOR_CONFIG = {
 };
 
 export default class CodeEditor {
-  private config: EditorConfig;
+  public config: EditorConfig;
   private state: EditorState;
   private view: EditorView;
 
