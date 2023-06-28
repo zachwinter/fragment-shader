@@ -1,8 +1,8 @@
 import { clike } from '@codemirror/legacy-modes/mode/clike';
 import { createStyleSheet } from './dom';
-import { UniformValue } from '../types/shader';
-import CodeEditor from '../classes/CodeEditor';
+import BaseEditor from '../classes/BaseEditor';
 import { EditorConfig } from '../types/editor';
+import { Uniform } from '../types/uniform';
 import {
   BLOCKS,
   KEYWORDS,
@@ -14,7 +14,7 @@ import {
 interface ShaderEditorConfig {
   parent?: HTMLElement;
   shader?: string;
-  uniforms?: UniformValue[];
+  uniforms?: Uniform[];
   onUpdate?: Function;
   onError?: Function;
   width?: number;
@@ -39,7 +39,7 @@ function toKeyObject(arr: string[]) {
 
 export function createShaderEditor(
   config: ShaderEditorConfig = DEFAULT_CONFIG
-): CodeEditor {
+): BaseEditor {
   const { parent, shader, uniforms, width, height, fillViewport } = {
     ...DEFAULT_CONFIG,
     ...config,
@@ -54,7 +54,7 @@ export function createShaderEditor(
     atoms: toKeyObject([...RAW_UTIL_KEYS, ...(uniforms || []).map(u => u[0])]),
   });
 
-  return new CodeEditor({
+  return new BaseEditor({
     document: shader || '',
     parent: parent || DEFAULT_PARENT,
     streamParser,

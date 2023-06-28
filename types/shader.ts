@@ -1,10 +1,12 @@
+import { type Uniform } from "./uniform";
 export interface ShaderConfig {
   parent?: HTMLElement;
   shader?: string;
-  uniforms?: any[];
+  uniforms?: Uniform[]; 
   width?: number;
   height?: number;
   fillViewport?: boolean;
+  fillContainer?: boolean;
   dpr?: number;
   onSuccess?: Function;
   onError?: Function;
@@ -16,5 +18,3 @@ export interface ShaderConfig {
 export interface ShaderState {
   active: boolean;
 }
-
-export type UniformValue = [string, number, number[] | boolean];

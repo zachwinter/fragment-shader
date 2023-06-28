@@ -10,11 +10,7 @@ export function createCanvas(
 
 export function sizeCanvas(
   canvas: HTMLCanvasElement,
-  { width, height, dpr }: HasResolution = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-    dpr: window.devicePixelRatio,
-  }
+  { width, height, dpr }: HasResolution
 ): void {
   canvas.width = width * dpr;
   canvas.height = height * dpr;

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alata&family=Red+Hat+Mono:wght@300;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Red+Hat+Mono:wght@300;400;700&display=swap');
 
 :root {
   --pink: #f550b6;
@@ -14,11 +14,11 @@
   --spotify: #1db954;
   --gray: #54494b;
   --background-color: var(--black);
-  --ui-background: rgba(0, 0, 0, 0.5);
+  --ui-background: rgba(0, 0, 0, 0.7);
   --editor-width: 100vw;
   --editor-height: 100vh;
-  --editor-font-size: 1rem;
-  --editor-line-height: 1.5rem;
+  --editor-font-size: .8rem;
+  --editor-line-height: 1.2rem;
 }
 
 .no-line-numbers .cm-gutters {
@@ -51,12 +51,13 @@
   height: var(--editor-height) !important;
   width: var(--editor-width) !important;
   padding-top: 0 !important;
-  z-index: 2;
+  z-index: 10;
+  will-change: transform, opacity;
 }
 
 .cm-editor * {
   font-family: 'Red Hat Mono', monospace;
-  font-weight: 300 !important;
+  font-weight: 400 !important;
   tab-size: var(--editor-line-height);
   font-size: var(--editor-font-size);
   line-height: var(--editor-line-height);
@@ -88,7 +89,7 @@
   padding-top: 0 !important;
   background: var(--ui-background) !important;
   border-right: var(--border);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .cm-gutters,
@@ -131,13 +132,14 @@
 }
 
 .cm-selectionLayer {
-  z-index: -1 !important;
+  z-index: 2 !important;
+  background: rgba(0, 0, 0, .9) !important;
   pointer-events: none;
 }
 
 .cm-selectionBackground {
-  background: #bca2f365 !important;
   z-index: 0 !important;
+  background: pink !important;
 }
 
 .cm-matchingBracket {
@@ -192,5 +194,20 @@
 }
 
 .cm-tooltip-autocomplete {
-  background: var(--black) !important;
+  background: var(--ui-background) !important;
+}
+
+.cm-tooltip-autocomplete ul * {
+  display: flex !important;
+  font-family: 'Red Hat Mono', mono;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  height: var(--editor-line-height) !important;
+  padding: 0 !important;
+  /* overflow: hidden; */
+}
+
+.cm-tooltip-autocomplete [aria-selected] {
+  background: var(--pink) !important;
+  color: var(--white) !important;
 }

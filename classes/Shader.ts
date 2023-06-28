@@ -7,8 +7,10 @@ import { HasResolution } from '../types/dimensions';
 import {
   type ShaderConfig,
   type ShaderState,
-  type UniformValue,
 } from '../types/shader';
+import {
+  type Uniform as UniformTuple
+} from '../types/uniform';
 import {
   DEFAULT_FRAGMENT_SHADER,
   DEFAULT_UNIFORMS,
@@ -66,19 +68,22 @@ export default class Shader {
       };
     }
 
-    console.log(this.config);
-
     this.state = {
       active: false,
     };
 
-    this.canvas = createCanvas(this.config.parent);
+    this.canvas = createCanvas(this.container);
 
     if (this.config.fillViewport) {
       this.canvas.style.position = 'absolute';
       this.canvas.style.top = '0';
       this.canvas.style.left = '0';
       this.canvas.style.zIndex = '0';
+    }
+
+    if (this.config.fillContainer) {
+      this.config.width = this.container.offsetWidth;
+      this.config.height = this.container.offsetHeight;
     }
 
     sizeCanvas(this.canvas, this.config as HasResolution);
@@ -118,10 +123,14 @@ export default class Shader {
       this.tick(window.performance.now());
     }
 
-    if (this.config.fillViewport) {
+    if (this.config.fillViewport || this.config.fillContainer) {
       this.onWindowResize = this.onWindowResize.bind(this);
       window.addEventListener('resize', this.onWindowResize);
     }
+  }
+
+  get container () {
+    return this.config.parent ?? document.body
   }
 
   get uniformDeclarations(): string {
@@ -154,7 +163,7 @@ export default class Shader {
       ${this.config.shader}`;
   }
 
-  set uniforms(uniforms: UniformValue[]) {
+  set uniforms(uniforms: UniformTuple[]) {
     this.config.uniforms = uniforms;
   }
 
@@ -164,12 +173,15 @@ export default class Shader {
       height = window.innerHeight,
       dpr = window.devicePixelRatio,
     } = resolution;
+
     this.config.width = width;
     this.config.height = height;
     this.config.dpr = dpr;
+
     sizeCanvas(this.canvas, this.config as HasResolution);
     this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.config?.onResize?.();
+    if (!this.config.animate) this.tick(window.performance.now());
   }
 
   setUniform(key: string, value: any) {
@@ -183,8 +195,8 @@ export default class Shader {
     }
   }
 
-  buildUniforms(): UniformValue[] {
-    const uniforms = [...INTERNAL_UNIFORMS, ...(this.config.uniforms || [])];
+  buildUniforms(): Record<string, Uniform> {
+    const uniforms: UniformTuple[] = [...INTERNAL_UNIFORMS, ...(this.config.uniforms || [])];
 
     this._uniformMap = this.config.uniforms?.reduce((acc, [name], i) => {
       acc[name] = i;
@@ -258,9 +270,14 @@ export default class Shader {
   }
 
   onWindowResize() {
-    this.config.width = window.innerWidth;
-    this.config.height = window.innerHeight;
-    this.config.dpr = window.devicePixelRatio;
+    if (this.config.fillContainer) {
+      this.config.width = this.container.offsetWidth;
+      this.config.height = this.container.offsetHeight;
+    } else {
+      this.config.width = window.innerWidth;
+      this.config.height = window.innerHeight;
+      this.config.dpr = window.devicePixelRatio;
+    }
     sizeCanvas(this.canvas, this.config as HasResolution);
     this.ctx?.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.config?.onResize?.();
@@ -315,7 +332,7 @@ export default class Shader {
 
     this._uniforms?.resolution?.set([this.canvas.width, this.canvas.height]);
     this._uniforms?.time?.set(time);
-    this._uniforms?.stream?.set(time);
+    this._uniforms?.stream?.set(this.stream || time);
     this._uniforms?.volume?.set(this.volume);
     this.config?.uniforms?.forEach(uniform => {
       this._uniforms[uniform[0]].set(

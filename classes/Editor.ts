@@ -1,9 +1,10 @@
 import { createShaderEditor } from '../util/editor';
 import { type EditorConfig } from '../types/editor';
 import Shader, { DEFAULT_SHADER_CONFIG } from './Shader';
-import CodeEditor from './CodeEditor';
+import BaseEditor from './BaseEditor';
 import '../css/editor.css';
-import { UniformValue } from '../types/shader';
+import { Uniform } from '../types/uniform';
+import { HasResolution } from '../types/dimensions';
 
 const DEFAULT_EDITOR_CONFIG: EditorConfig = {
   ...DEFAULT_SHADER_CONFIG,
@@ -13,8 +14,8 @@ const DEFAULT_EDITOR_CONFIG: EditorConfig = {
 
 export default class Editor {
   private config: EditorConfig;
-  private editor: CodeEditor;
-  private shader: Shader;
+  private editor: BaseEditor;
+  public shader: Shader;
 
   constructor(config: EditorConfig = DEFAULT_EDITOR_CONFIG) {
     this.config = {
@@ -36,9 +37,17 @@ export default class Editor {
     });
   }
 
+  set size(resolution: HasResolution) {
+    const width = resolution.width || window.innerWidth;
+    const height = resolution.height || window.innerHeight;
+    const dpr = resolution.dpr || window.devicePixelRatio;
+    this.shader.size = { width, height, dpr };
+  }
+
   onUpdate(val: string) {
     this.editor.hideError();
     this.config?.onUpdate?.(val);
+    console.log(val)
     this.shader.rebuild({ shader: val, uniforms: this.config.uniforms });
   }
 
@@ -52,19 +61,27 @@ export default class Editor {
     this.editor.applyCSSVariables();
   }
 
-  rebuild(config: { shader?: string; uniforms?: UniformValue[] } = {}) {
+  rebuild(config: { shader?: string; uniforms?: Uniform[] } = {}) {
     const {
       shader,
       uniforms,
     }: {
       shader?: string;
-      uniforms?: UniformValue[];
+      uniforms?: Uniform[];
     } = {
       shader: '',
       uniforms: [],
       ...config,
     };
 
+    this.config.shader = shader;
+    this.config.uniforms = uniforms;
+    this.editor.hideError();
+    this.editor.destroy();
+    this.editor = createShaderEditor({
+      ...this.config,
+      onUpdate: this.onUpdate,
+    });
     this.shader.rebuild({ shader, uniforms });
   }
 

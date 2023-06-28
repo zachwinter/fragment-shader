@@ -4,3 +4,4 @@ export * from './types/dimensions';
 export * from './types/editor';
 export * from './types/raf';
 export * from './types/shader';
+export * from './types/uniform';

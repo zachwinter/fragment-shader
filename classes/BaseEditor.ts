@@ -1,6 +1,6 @@
 import { errorStyles } from '../util/editor';
 import { EditorView } from 'codemirror';
-import { EditorState, EditorStateConfig } from '@codemirror/state';
+import { EditorState, type EditorStateConfig } from '@codemirror/state';
 import {
   defaultKeymap,
   indentWithTab,
@@ -14,7 +14,7 @@ import {
 } from '@codemirror/language';
 import { oneDark } from '@codemirror/theme-one-dark';
 import {
-  EditorViewConfig,
+  type EditorViewConfig,
   ViewUpdate,
   keymap,
   lineNumbers,
@@ -24,7 +24,7 @@ import {
   tooltips,
 } from '@codemirror/view';
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete';
-import { EditorConfig } from '../types/editor';
+import type { EditorConfig } from '../types/editor';
 
 const { showError, hideError, destroyError } = errorStyles();
 
@@ -35,7 +35,7 @@ const DEFAULT_CODE_EDITOR_CONFIG = {
   height: window.innerHeight,
 };
 
-export default class CodeEditor {
+export default class BaseEditor {
   public config: EditorConfig;
   private state: EditorState;
   private view: EditorView;

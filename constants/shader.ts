@@ -24,11 +24,11 @@ export const DEFAULT_UNIFORMS = [
 ] as any;
 
 export const INTERNAL_UNIFORMS = [
-  ['time', 0, 0],
-  ['stream', 0, 0],
+  ['time', 0, [0, 0, 1, .001]],
+  ['stream', 0, [0, 0, 1, .001]],
   ['resolution', 2, [window.innerWidth, window.innerHeight]],
-  ['volume', 0, 1],
-  ['scroll', 0, 0],
+  ['volume', 0, [1, 0, 1, .001]],
+  ['scroll', 0, [0, 0, 1, .001]],
 ] as any;
 
 export const SHADER_TYPE_MAP = {

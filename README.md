@@ -125,16 +125,14 @@ requestAnimationFrame(tick);
 
 ### **Uniforms**
 
-We can pass any number of `Uniform` values to our shaders. Uniforms passed to the `Shader` class are automatically injected into our shaders without having to define them explicitly. The renderer expects an array of uniforms, each of type `UniformValue`. The first index (`[0]`) of a `UniformValue` defines its `name`, the second (`[1]`) defines its `type`, and the third (`[2]`) defines its `value`.
-
-> **Note** Please note that uniforms of type `bool` are unique in that their values aren't contained within an array.
+We can pass any number of `Uniform` values to our shaders. Uniforms passed to the `Shader` class are automatically injected into our shaders without having to define them explicitly. The renderer expects an array of uniforms, each of type `Uniform`. The first index (`[0]`) of a `Uniform` defines its `name`, the second (`[1]`) defines its `type`, and the third (`[2]`) defines its `value`.
 
 ```javascript
-import { Shader, type UniformValue } from 'fragment-shader';
+import { Shader, type Uniform } from 'fragment-shader';
 
-const zoom: UniformValue = ['zoom', 0, [2.5]];
-const color: UniformValue = ['color', 3, [0.8, 0.2, 0.6]];
-const warp: UniformValue = ['warp', 1, false];
+const zoom: Uniform = ['zoom', 0, [2.5]];
+const color: Uniform = ['color', 3, [0.8, 0.2, 0.6]];
+const warp: Uniform = ['warp', 1, [false]];
 
 const shader = new Shader({
   shader: /*glsl*/ `
