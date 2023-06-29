@@ -1,6 +1,6 @@
 {
   "name": "fragment-shader",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A lightweight, performant WebGL fragment shader renderer + editor. ",
   "main": "index.js",
   "scripts": {
